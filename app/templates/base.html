@@ -1,0 +1,30 @@
+<!--
+base.html: base template for scandiv web app
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/static/styles.css" media="screen" title="no title" charset="utf-8">
+    <script src="/static/jquery-1.10.2.min.js" charset="utf-8"></script>
+    {% if title %}
+    <title>scandiv - {{ title }}</title>
+    {% else %}
+    <title>scandiv</title>
+    {% endif %}
+</head>
+
+<body>
+
+
+    <div class="content">
+        {% block content %} {% endblock %}
+    </div>
+
+    <!-- display flashed messages -->
+    {% include 'flash.html' %}
+</body>
+
+</html>
