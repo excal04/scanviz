@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>choose between text upload of file upload</h2>
+<form action="/upload" method="post" enctype='multipart/form-data'>
+    {{ form.csrf_token }}
+    {{ form.textup.label }}
+    {{ form.textup(cols=64, rows=6) }}
+    <hr>
+    {{ form.fileup.label }}
+    {{ form.fileup(_name="file") }}
+    <br>
+    <input type="submit" value="Upload">
+</form>
+
+{% endblock %}
