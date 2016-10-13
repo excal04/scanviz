@@ -11,7 +11,7 @@ def index():
     return render_template('index.html', title="Home")
 
 
-@app.route('/upload', methods=('GET', 'POST'))
+@app.route('/upload', methods=['GET', 'POST'])
 def upload():
     form = ScanForm()
     if form.validate_on_submit():
@@ -32,3 +32,25 @@ def upload():
                 flash('error indexing data')
             return redirect(url_for('index'))
     return render_template('upload_scan.html', form=form)
+
+
+@app.route('/getsummary', methods=['POST'])
+def scan_summary():
+    # get date range
+    from_t = request.form['from']
+    to_t = request.form['to']
+    ret = {"ports" : {}}
+
+    # i'm sure there's a better way to do this... ugh.
+    res = es.search(index=ELASTIC_SCAN_INDEX, q="tcp.\*.state:open")
+    for hit in res['hits']['hits']:
+        print "date: ", hit["_source"]["datetime"]
+        ports = hit["_source"]["tcp"].keys()
+        for port in ports:
+            if hit["_source"]["tcp"][port]["state"] == "open":
+                if ret["ports"].get(port):
+                    ret["ports"][port]["count"] += 1
+                else:
+                    ret["ports"][port] = {"count" : 1, "name" : hit["_source"]["tcp"][port]["name"]}
+
+    return json.dumps(ret)
