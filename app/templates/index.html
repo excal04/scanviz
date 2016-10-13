@@ -3,5 +3,83 @@
 {% block content %}
 
 <h1>index</h1>
+<a href="{{ url_for('upload') }}">upload scan</a>
+
+<!-- show statistics here -->
+<h2>Open ports on all scans</h2>
+<div id="piechart"></div>
+
+<script>
+
+$(document).ready(function() {
+
+
+    // request for the summary data at document load
+    $.post("/getsummary", {
+        "from" : "1",
+        "to" : "2"
+    }).success(function(jsondata) {
+        var jsonobj = JSON.parse(jsondata);
+        generatePieChart(jsonobj);
+        console.log(jsondata);
+    }).fail(function() {
+        console.log("cannot contact server");
+    });
+}); // end of doc.ready
+
+function generateBarGraph() {
+    var arr = getInput();
+    var x = d3.scale.linear()
+    .domain([0, d3.max(arr)])
+    .range([0, 420]);
+
+    d3.select(".bargraph")
+    .selectAll("div")
+    .data(arr)
+    .enter().append("div")
+    .style("width", function(d){
+        return x(d) + "px";
+    })
+    .text(function(d) {
+        return d;
+    });
+}
+
+function generatePieChart(jsonobj) {
+	var w = 600;
+	var h = 600;
+	var r = h/2;
+	var color = d3.scale.category20c();
+
+    portnames = Object.keys(jsonobj.ports)
+
+	var chartData = new Array(portnames.length);
+	for(var i = 0; i < portnames.length; i++)
+		chartData[i] = {"label": portnames[i] + " (" + jsonobj.ports[portnames[i]].name + ")",
+                        "value": jsonobj.ports[portnames[i]].count};
+
+	var vis = d3.select('#piechart').append("svg:svg").data([chartData]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
+	var pie = d3.layout.pie().value(function(d){return d.value;});
+
+	var arc = d3.svg.arc().outerRadius(r);
+
+	var arcs = vis.selectAll("g.slice").data(pie).enter().append("svg:g").attr("class", "slice");
+	arcs.append("svg:path")
+		.attr("fill", function(d, i){
+			return color(i);
+		})
+		.attr("d", function (d) {
+			return arc(d);
+		});
+
+	arcs.append("svg:text").attr("transform", function(d){
+				d.innerRadius = 0;
+				d.outerRadius = r;
+		return "translate(" + arc.centroid(d) + ")";}).attr("text-anchor", "middle").text( function(d, i) {
+		return chartData[i].label;}
+			);
+}
+
+</script>
 
 {% endblock %}
