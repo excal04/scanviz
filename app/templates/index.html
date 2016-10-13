@@ -7,17 +7,19 @@
 
 <!-- show statistics here -->
 <h2>Open ports on all scans</h2>
+From <input type="datetime-local" id="from" value=""> -
+<input type="datetime-local" id="to" value="">
+<input type="button" value="set range" id="set">
+
 <div id="piechart"></div>
 
 <script>
 
 $(document).ready(function() {
-
-
     // request for the summary data at document load
     $.post("/getsummary", {
-        "from" : "1",
-        "to" : "2"
+        "from" : null,
+        "to" : null
     }).success(function(jsondata) {
         var jsonobj = JSON.parse(jsondata);
         generatePieChart(jsonobj);
@@ -25,6 +27,25 @@ $(document).ready(function() {
     }).fail(function() {
         console.log("cannot contact server");
     });
+
+    // set range date to display scan summary
+    // todo: check if from < to
+    $("#set").click(function() {
+        $("#piechart").empty();
+        var from_t = $("#from").val();
+        var to_t = $("#to").val();
+        $.post("/getsummary", {
+            "from" : from_t,
+            "to" : to_t
+        }).success(function(jsondata) {
+            var jsonobj = JSON.parse(jsondata);
+            generatePieChart(jsonobj);
+            console.log(jsondata);
+        }).fail(function() {
+            console.log("cannot contact server");
+        });
+    });
+
 }); // end of doc.ready
 
 function generateBarGraph() {

@@ -1,5 +1,6 @@
 
 import json
+from datetime import datetime, date
 from flask import render_template, redirect, url_for, session, flash, request, g
 from config import ELASTIC_SCAN_INDEX, ELASTIC_SCAN_DOC_TYPE, UPLOAD_LOC
 from app import app, es
@@ -37,20 +38,27 @@ def upload():
 @app.route('/getsummary', methods=['POST'])
 def scan_summary():
     # get date range
-    from_t = request.form['from']
-    to_t = request.form['to']
+    from_t = datetime.min
+    to_t = datetime.max
+    if request.form['from'] and request.form['to']:
+        from_t = datetime.strptime(request.form['from'], "%Y-%m-%dT%H:%M")
+        to_t = datetime.strptime(request.form['to'], "%Y-%m-%dT%H:%M")
+
     ret = {"ports" : {}}
 
     # i'm sure there's a better way to do this... ugh.
     res = es.search(index=ELASTIC_SCAN_INDEX, q="tcp.\*.state:open")
     for hit in res['hits']['hits']:
-        print "date: ", hit["_source"]["datetime"]
-        ports = hit["_source"]["tcp"].keys()
-        for port in ports:
-            if hit["_source"]["tcp"][port]["state"] == "open":
-                if ret["ports"].get(port):
-                    ret["ports"][port]["count"] += 1
-                else:
-                    ret["ports"][port] = {"count" : 1, "name" : hit["_source"]["tcp"][port]["name"]}
+        scan_t = datetime.strptime(hit["_source"]["datetime"][:-7], "%Y-%m-%d %H:%M:%S")    # drops ms
+
+        # only summarize data with scan time in range specified
+        if from_t <= scan_t <= to_t:
+            ports = hit["_source"]["tcp"].keys()
+            for port in ports:
+                if hit["_source"]["tcp"][port]["state"] == "open":
+                    if ret["ports"].get(port):
+                        ret["ports"][port]["count"] += 1
+                    else:
+                        ret["ports"][port] = {"count" : 1, "name" : hit["_source"]["tcp"][port]["name"]}
 
     return json.dumps(ret)
