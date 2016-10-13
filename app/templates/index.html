@@ -4,6 +4,7 @@
 
 <h1>index</h1>
 <a href="{{ url_for('upload') }}">upload scan</a>
+<a href="{{ url_for('search') }}">search</a>
 
 <!-- show statistics here -->
 <h2>Open ports on all scans</h2>
@@ -47,24 +48,6 @@ $(document).ready(function() {
     });
 
 }); // end of doc.ready
-
-function generateBarGraph() {
-    var arr = getInput();
-    var x = d3.scale.linear()
-    .domain([0, d3.max(arr)])
-    .range([0, 420]);
-
-    d3.select(".bargraph")
-    .selectAll("div")
-    .data(arr)
-    .enter().append("div")
-    .style("width", function(d){
-        return x(d) + "px";
-    })
-    .text(function(d) {
-        return d;
-    });
-}
 
 function generatePieChart(jsonobj) {
 	var w = 600;

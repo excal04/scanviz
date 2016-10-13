@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>hostname search</h2>
+<input type="text" id="searchbox" value="">
+<input type="button" value="search" id="search">
+
+<script>
+    $(document).ready(function() {
+
+        // todo: warning! no checking on search keyword
+        $("#search").click(function() {
+            $.post("/search", {
+                "keyword" : $("#searchbox").val()
+            }).success(function(jsondata) {
+                var jsonobj = JSON.parse(jsondata);
+
+                console.log(jsondata);
+            }).fail(function() {
+                console.log("cannot contact server");
+            });
+        });
+    });
+</script>
+
+{% endblock %}
