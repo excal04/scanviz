@@ -1,3 +1,8 @@
+"""
+views.py: views module for scanviz web app
+author: Jeff
+date: 10/2016
+"""
 
 import json
 from datetime import datetime, date
@@ -70,6 +75,6 @@ def scan_summary():
 def search():
     if request.method == 'GET':
         return render_template('search.html')
-    else:   # post
+    else:   # POST
         res = es.search(index=ELASTIC_SCAN_INDEX, body={"query": {"match": {"_all" : request.form['keyword']}}})
         return json.dumps(res['hits']['hits'][0]) if res['hits']['hits'] else "null"

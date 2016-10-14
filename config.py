@@ -1,3 +1,8 @@
+"""
+config.py: configurations for scanviz web app
+author: Jeff
+date: 10/2016
+"""
 
 import os
 

@@ -1,4 +1,8 @@
-
+"""
+forms.py: webforms for scanviz web app
+author: Jeff
+date: 10/2016
+"""
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField

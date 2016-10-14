@@ -1,8 +1,15 @@
+<!--
+serach.html: serach page for scanviz web app
+author: Jeff
+date: 10/2016
+-->
+
 {% extends 'base.html' %}
 
 {% block content %}
 
 <h2>host search</h2>
+<a href="{{ url_for('index') }}">Home</a>
 <input type="text" id="searchbox" value="">
 <input type="button" value="search" id="search">
 <hr>

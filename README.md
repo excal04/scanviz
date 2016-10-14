@@ -4,10 +4,16 @@ Network Scan Visualization - Experimental Application
 ## What is this?
 Simple web application for the visualization of nmap scans. Stores scans to Elasticsearch.
 
+## How to use?
+Upload your scans, then see visualization. Search scans by hostname in search page
+
+
 ## Features
 * Pie chart visualization of all open ports as specified by a date/time range. Range defaults to all time if not set.
 
 * Storage of network scans to Elasticsearch. Scans should be strictly in **JSON format** [specified here](##Scan Format).
+
+* Searching of scans stored in Elasticsearch by hostname.
 
 ---
 
@@ -29,7 +35,7 @@ Once you have that set up, install the dependencies specified in `requirements.t
 pip install -r requirements.txt
 ```
 
-After which you should be able to run the application. The source includes a script that runs the application through Flask's built in web server.
+After which you should be able to run the application. The source includes a script that runs the application through Flask's built in web server. This runs the application in for development.
 
 ```
 python run.py
@@ -44,6 +50,10 @@ python run.py
 ### Configuration
 
 Refer to `config.py` for the configuration. I might add the config for host IP and port of elasticsearch there later in case you don't plan to use the defaults.
+
+By default scans are stored in the following index and type:
+`index = 'dfir'`
+`doc type = 'scan'`
 
 ## Scan Format
 Below is an example JSON scan format.
