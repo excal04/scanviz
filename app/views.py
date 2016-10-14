@@ -11,26 +11,28 @@ from werkzeug.utils import secure_filename
 def index():
     return render_template('index.html', title="Home")
 
-# todo: support for multiple files
+# todo: check if correct format
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     form = ScanForm()
     if form.validate_on_submit():
         # we want either text upload of file upload
-        contents = None
+        contents = []
         if form.fileup.data:
-            contents = form.fileup.data.read()
+            for f in request.files.getlist('fileup'):   # handle multiple files
+                contents.append(f.stream.read())
         elif form.textup.data:
-            contents = form.textup.data
+            contents.append(form.textup.data)
 
         if contents:
-            res = es.index(index=ELASTIC_SCAN_INDEX,
-                doc_type=ELASTIC_SCAN_DOC_TYPE,
-                body=json.loads(contents))
-            if res:
-                flash('scan uploaded!')
-            else:
-                flash('error indexing data')
+            for scan in contents:
+                res = es.index(index=ELASTIC_SCAN_INDEX,
+                    doc_type=ELASTIC_SCAN_DOC_TYPE,
+                    body=json.loads(scan))
+                if res:
+                    flash('scan uploaded!')
+                else:
+                    flash('error indexing data')
             return redirect(url_for('index'))
     return render_template('upload_scan.html', form=form)
 
