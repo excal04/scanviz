@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 def index():
     return render_template('index.html', title="Home")
 
-
+# todo: support for multiple files
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     form = ScanForm()
@@ -62,3 +62,12 @@ def scan_summary():
                         ret["ports"][port] = {"count" : 1, "name" : hit["_source"]["tcp"][port]["name"]}
 
     return json.dumps(ret)
+
+# todo: fix querying here
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'GET':
+        return render_template('search.html')
+    else:   # post
+        res = es.search(index=ELASTIC_SCAN_INDEX, body={"query": {"match": {"_all" : request.form['keyword']}}})
+        return json.dumps(res['hits']['hits'][0]) if res['hits']['hits'] else "null"

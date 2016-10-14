@@ -2,9 +2,18 @@
 
 {% block content %}
 
-<h2>hostname search</h2>
+<h2>host search</h2>
 <input type="text" id="searchbox" value="">
 <input type="button" value="search" id="search">
+<hr>
+<div class="statusPane"></div>
+<div class="results hidden">
+    <b>IP Address:</b> <div class="ip"></div>
+    <b>Hostnames:</b> <div class="hostnames"></div>
+    <b>Ports:</b> <div class="ports"></div>
+    <b>Status:</b> <div class="status"></div>
+    <b>Date of scan:</b> <div class="scantime"></div>
+</div>
 
 <script>
     $(document).ready(function() {
@@ -15,8 +24,29 @@
                 "keyword" : $("#searchbox").val()
             }).success(function(jsondata) {
                 var jsonobj = JSON.parse(jsondata);
-
                 console.log(jsondata);
+                if (jsonobj == null) {
+                    $(".statusPane").text("No results");
+                    $(".results").addClass("hidden");
+                } else {
+                    $(".statusPane").empty();
+                    var base = jsonobj._source;
+                    var hostnames = "";
+                    $(".ip").text(base.addresses.ipv4);
+                    for (var i = 0; i < base.hostnames.length; i++) {
+                        hostnames += base.hostnames[i].name + (i + 1 < base.hostnames.length ? ", " : "");
+                    }
+                    $(".hostnames").text(hostnames);
+                    var ports = Object.keys(base.tcp);
+                    var portsStr = "";
+                    for (var i = 0; i < ports.length; i++) {
+                        portsStr += ports[i] + "(" + base.tcp[ports[i]].name + ") - " + base.tcp[ports[i]].state + ", ";
+                    }
+                    $(".ports").text(portsStr);
+                    $(".status").text(base.status.state);
+                    $(".scantime").text(base.datetime);
+                    $(".results").removeClass("hidden");
+                }
             }).fail(function() {
                 console.log("cannot contact server");
             });
