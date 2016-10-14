@@ -11,6 +11,7 @@ from config import ELASTIC_SCAN_INDEX, ELASTIC_SCAN_DOC_TYPE, UPLOAD_LOC
 from app import app, es
 from forms import ScanForm
 from werkzeug.utils import secure_filename
+import elasticsearch
 
 @app.route('/')
 def index():
@@ -54,7 +55,11 @@ def scan_summary():
     ret = {"ports" : {}}
 
     # i'm sure there's a better way to do this... ugh.
-    res = es.search(index=ELASTIC_SCAN_INDEX, q="tcp.\*.state:open")
+    try:
+        res = es.search(index=ELASTIC_SCAN_INDEX, q="tcp.\*.state:open")
+    except elasticsearch.ElasticsearchException:    # NotFoundError
+        flash("no records yet")
+        return json.dumps(ret)
     for hit in res['hits']['hits']:
         scan_t = datetime.strptime(hit["_source"]["datetime"][:-7], "%Y-%m-%d %H:%M:%S")    # drops ms
 
