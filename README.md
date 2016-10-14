@@ -11,7 +11,7 @@ Upload your scans, then see visualization. Search scans by hostname in search pa
 ## Features
 * Pie chart visualization of all open ports as specified by a date/time range. Range defaults to all time if not set.
 
-* Storage of network scans to Elasticsearch. Scans should be strictly in **JSON format** [specified here](##scan-format).
+* Storage of network scans to Elasticsearch. Scans should be strictly in **JSON format** [specified here](#scan-format).
 
 * Searching of scans stored in Elasticsearch by hostname.
 
@@ -52,7 +52,9 @@ python run.py
 Refer to `config.py` for the configuration. I might add the config for host IP and port of elasticsearch there later in case you don't plan to use the defaults.
 
 By default scans are stored in the following index and type:
+
 `index = 'dfir'`
+
 `doc type = 'scan'`
 
 ## Scan Format
