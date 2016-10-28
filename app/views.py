@@ -75,11 +75,10 @@ def scan_summary():
 
     return json.dumps(ret)
 
-# todo: fix querying here
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'GET':
         return render_template('search.html')
     else:   # POST
-        res = es.search(index=ELASTIC_SCAN_INDEX, body={"query": {"match": {"_all" : request.form['keyword']}}})
+        res = es.search(index=ELASTIC_SCAN_INDEX, body={"query":{"match":{"hostnames.name":request.form['keyword']}}})
         return json.dumps(res['hits']['hits'][0]) if res['hits']['hits'] else "null"
